@@ -2,7 +2,10 @@ package com.example.jingli.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -20,7 +23,6 @@ import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,10 +52,20 @@ public class ChooseAreaActivity extends Activity {
 
     private Province selectedProvince;
     private City selectedCity;
+    private County selectedCounty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.getBoolean("county_selected", false)) {
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
 
@@ -75,6 +87,13 @@ public class ChooseAreaActivity extends Activity {
                     case LEVEL_CITY:
                         selectedCity = cityList.get(position);
                         queryCounties();
+                        break;
+                    case LEVEL_COUNTY:
+                        selectedCounty = countyList.get(position);
+                        Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                        intent.putExtra("county_code", selectedCounty.getCode());
+                        ChooseAreaActivity.this.startActivity(intent);
+                        finish();
                         break;
                     default:
                 }
