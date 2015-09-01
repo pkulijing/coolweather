@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.jingli.coolweather.R;
 import com.example.jingli.coolweather.model.Weather;
+import com.example.jingli.coolweather.service.UpdateWeatherService;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
@@ -142,6 +143,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                 + weather.getHighTemperature());
         weatherTypeText.setText(weather.getType());
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.getUpdateTime());
+
+        Intent intent = new Intent(this, UpdateWeatherService.class);
+        startService(intent);
     }
 
     private void showProgressDialog() {
