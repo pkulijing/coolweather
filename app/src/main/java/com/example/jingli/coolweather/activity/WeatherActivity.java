@@ -66,6 +66,10 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
             showProgressDialog();
             queryFromServer(weatherCodeAddress, "weathercode");
         }
+
+        //Is it appropriate to start the service here?
+        Intent intent = new Intent(this, UpdateWeatherService.class);
+        startService(intent);
     }
 
     @Override
@@ -143,9 +147,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                 + weather.getHighTemperature());
         weatherTypeText.setText(weather.getType());
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.getUpdateTime());
-
-        Intent intent = new Intent(this, UpdateWeatherService.class);
-        startService(intent);
     }
 
     private void showProgressDialog() {
