@@ -2,9 +2,14 @@ package com.example.jingli.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,9 +23,10 @@ import com.example.jingli.coolweather.util.HttpUtil;
 /**
  * Created by jingli on 9/1/15.
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements View.OnClickListener{
 
-    private String countyCode;
+    private Button switchCounty;
+    private Button updateWeather;
 
     private TextView countyNameText;
     private TextView currentDateText;
@@ -37,6 +43,9 @@ public class WeatherActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weather_layout);
 
+        switchCounty = (Button) findViewById(R.id.switch_county);
+        updateWeather = (Button) findViewById(R.id.update_weather);
+
         countyNameText = (TextView) findViewById(R.id.county_name);
         currentDateText = (TextView) findViewById(R.id.current_date);
         currentTimeText = (TextView) findViewById(R.id.current_time);
@@ -44,7 +53,10 @@ public class WeatherActivity extends Activity {
         weatherTypeText = (TextView) findViewById(R.id.weather_type);
         updateTimeText = (TextView) findViewById(R.id.update_time);
 
-        countyCode = getIntent().getStringExtra("county_code");
+        switchCounty.setOnClickListener(this);
+        updateWeather.setOnClickListener(this);
+
+        String countyCode = getIntent().getStringExtra("county_code");
 
         if(TextUtils.isEmpty(countyCode)) {
             showWeather();
@@ -52,6 +64,29 @@ public class WeatherActivity extends Activity {
             String weatherCodeAddress = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
             showProgressDialog();
             queryFromServer(weatherCodeAddress, "weathercode");
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.switch_county:
+                Intent intent = new Intent(this, ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.update_weather:
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String weatherCode = prefs.getString("weather_code", "");
+                if(!TextUtils.isEmpty(weatherCode)) {
+                    String weatherInfoAddress = "http://www.weather.com.cn/data/cityinfo/"
+                            + weatherCode + ".html";
+                    showProgressDialog();
+                    queryFromServer(weatherInfoAddress, "weatherinfo");
+                }
+                break;
+            default:
         }
     }
 

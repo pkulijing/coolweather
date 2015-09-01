@@ -54,18 +54,24 @@ public class ChooseAreaActivity extends Activity {
     private City selectedCity;
     private County selectedCounty;
 
+    private boolean isFromWeatherActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs.getBoolean("county_selected", false)) {
-            Intent intent = new Intent(this, WeatherActivity.class);
-            startActivity(intent);
-            finish();
-            return;
+        if(!isFromWeatherActivity) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            if(prefs.getBoolean("county_selected", false)) {
+                Intent intent = new Intent(this, WeatherActivity.class);
+                startActivity(intent);
+                finish();
+                return;//Still necessary although finish() has been called! check the log below to verify.
+            }
         }
 
+        //Log.d("MyLog", "Still coming here");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
 
@@ -222,6 +228,10 @@ public class ChooseAreaActivity extends Activity {
                 queryProvinces();
                 break;
             default:
+                if(isFromWeatherActivity) {
+                    Intent intent = new Intent(this, WeatherActivity.class);
+                    startActivity(intent);
+                }
                 finish();
         }
     }
