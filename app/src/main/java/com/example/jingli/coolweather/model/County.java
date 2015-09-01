@@ -9,6 +9,7 @@ public class County {
     private String code;
     private int cityId;
 
+    public County() {}
     public County(int id, String name, String code, int cityId) {
         this.id = id;
         this.name = name;

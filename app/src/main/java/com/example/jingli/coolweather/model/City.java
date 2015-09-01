@@ -9,6 +9,7 @@ public class City {
     private String code;
     private int provinceId;
 
+    public City() {}
     public City(int id, String name, String code, int provinceId) {
         this.id = id;
         this.name = name;
