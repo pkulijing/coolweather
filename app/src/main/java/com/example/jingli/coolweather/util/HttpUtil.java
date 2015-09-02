@@ -1,5 +1,7 @@
 package com.example.jingli.coolweather.util;
 
+import com.example.jingli.coolweather.R;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +12,7 @@ import java.net.URL;
  * Created by jingli on 9/1/15.
  */
 public class HttpUtil {
+
     public static void sendHttpRequest(final String address, final HttpCallBackListener listener) {
         new Thread(new Runnable() {
             @Override
@@ -21,6 +24,8 @@ public class HttpUtil {
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
                     connection.setReadTimeout(8000);
+                    connection.setRequestProperty("apikey",
+                            MyApplication.getContext().getString(R.string.apikey));
                     InputStream in = connection.getInputStream();
                     BufferedReader reader = new BufferedReader( new InputStreamReader(in));
                     StringBuilder response = new StringBuilder();

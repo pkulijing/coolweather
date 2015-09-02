@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -30,10 +31,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private Button updateWeather;
 
     private TextView countyNameText;
-    private TextView currentDateText;
     private TextView currentTimeText;
-    private TextView temperatureText;
-    private TextView weatherTypeText;
+    private TextView condText;
+    private TextView tmpText;
+    private TextView windText;
+    private TextView humText;
+    private TextView visText;
+    private TextView presText;
     private TextView updateTimeText;
 
     private ProgressDialog progressDialog;
@@ -48,23 +52,27 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         updateWeather = (Button) findViewById(R.id.update_weather);
 
         countyNameText = (TextView) findViewById(R.id.county_name);
-        currentDateText = (TextView) findViewById(R.id.current_date);
         currentTimeText = (TextView) findViewById(R.id.current_time);
-        temperatureText = (TextView) findViewById(R.id.temperature);
-        weatherTypeText = (TextView) findViewById(R.id.weather_type);
+        condText = (TextView) findViewById(R.id.cond_text);
+        tmpText = (TextView) findViewById(R.id.tmp_text);
+        windText = (TextView) findViewById(R.id.wind_text);
+        humText = (TextView) findViewById(R.id.hum_text);
+        visText = (TextView) findViewById(R.id.vis_text);
+        presText = (TextView) findViewById(R.id.pres_text);
         updateTimeText = (TextView) findViewById(R.id.update_time);
 
         switchCounty.setOnClickListener(this);
         updateWeather.setOnClickListener(this);
 
-        String countyCode = getIntent().getStringExtra("county_code");
+        String countyName = getIntent().getStringExtra("county_name");
 
-        if(TextUtils.isEmpty(countyCode)) {
+        if(TextUtils.isEmpty(countyName)) {
             showWeather();
         } else {
-            String weatherCodeAddress = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
+            String weatherAddress = "http://apis.baidu.com/heweather/weather/free?city="
+                    + countyName;
             showProgressDialog();
-            queryFromServer(weatherCodeAddress, "weathercode");
+            queryFromServer(countyName, weatherAddress);
         }
 
         //Is it appropriate to start the service here?
@@ -82,41 +90,36 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                 finish();
                 break;
             case R.id.update_weather:
+                Log.d("MyLog", "manual update executed.");
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                String weatherCode = prefs.getString("weather_code", "");
-                if(!TextUtils.isEmpty(weatherCode)) {
-                    String weatherInfoAddress = "http://www.weather.com.cn/data/cityinfo/"
-                            + weatherCode + ".html";
+                String city = prefs.getString("city", "");
+
+                if(!TextUtils.isEmpty(city)) {
+                    String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
+                            + city;
                     showProgressDialog();
-                    queryFromServer(weatherInfoAddress, "weatherinfo");
+                    queryFromServer(city, weatherInfoAddress);
                 }
                 break;
             default:
         }
     }
 
-    private void queryFromServer(String address, final String type) {
+    private void queryFromServer(final String countyName, String address) {
+        Log.d("MyLog", address);
         HttpUtil.sendHttpRequest(address, new HttpCallBackListener() {
             @Override
             public void onFinish(String response) {
-                if(type.equals("weatherinfo")) {
-                    try {
-                        DataParser.parseWeatherResponse(WeatherActivity.this, response);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showWeather();
-                            }
-                        });
-                    } catch (Exception e) {
-                        onError(e);
-                    }
-                } else if(type.equals("weathercode")) {
-                    String[] parts = response.split("\\|");
-                    String weatherCode = parts[1];
-                    String weatherInfoAddress = "http://www.weather.com.cn/data/cityinfo/"
-                            + weatherCode + ".html";
-                    queryFromServer(weatherInfoAddress, "weatherinfo");
+                try {
+                    DataParser.parseWeatherResponse(WeatherActivity.this, response, countyName);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showWeather();
+                        }
+                    });
+                } catch (Exception e) {
+                    onError(e);
                 }
             }
 
@@ -140,13 +143,20 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private void showWeather() {
         closeProgressDialog();
         Weather weather = DataParser.retrieveWeatherInfo(this);
-        countyNameText.setText(weather.getCountyName());
-        currentDateText.setText(weather.getDate());
-        currentTimeText.setText(weather.getTime());
-        temperatureText.setText(weather.getLowTemperature() + " ~ "
-                + weather.getHighTemperature());
-        weatherTypeText.setText(weather.getType());
-        updateTimeText.setText(this.getString(R.string.updated_at) + weather.getUpdateTime());
+
+        countyNameText.setText(weather.city);
+
+        currentTimeText.setText(weather.date + " " + weather.time);
+
+        condText.setText(weather.cond_text);
+        tmpText.setText(weather.tmp + "∘");
+
+        windText.setText(weather.wind_dir + weather.wind_sc + "级");
+        humText.setText(getString(R.string.humidity) + " " + weather.hum + "%");
+        visText.setText(getString(R.string.visibility) + " " + weather.vis + "km");
+        presText.setText(getString(R.string.pressure) + " " + weather.pres + "hPa");
+
+        updateTimeText.setText(this.getString(R.string.updated_at) + weather.update_loc);
     }
 
     private void showProgressDialog() {

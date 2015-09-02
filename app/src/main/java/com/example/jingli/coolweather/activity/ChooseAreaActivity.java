@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -23,6 +24,7 @@ import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,10 @@ public class ChooseAreaActivity extends Activity {
     public static final int LEVEL_PROVINCE = 0;
     public static final int LEVEL_CITY = 1;
     public static final int LEVEL_COUNTY = 2;
+
+    public static final int QUERY_PROVINCE = 0;
+    public static final int QUERY_CITY = 1;
+    public static final int QUERY_COUNTY = 2;
 
     private int currentLevel;
 
@@ -63,6 +69,7 @@ public class ChooseAreaActivity extends Activity {
 
         if(!isFromWeatherActivity) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            Log.d("MyLog", "county_selected = " + prefs.getBoolean("county_selected", false));
             if(prefs.getBoolean("county_selected", false)) {
                 Intent intent = new Intent(this, WeatherActivity.class);
                 startActivity(intent);
@@ -97,7 +104,7 @@ public class ChooseAreaActivity extends Activity {
                     case LEVEL_COUNTY:
                         selectedCounty = countyList.get(position);
                         Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
-                        intent.putExtra("county_code", selectedCounty.getCode());
+                        intent.putExtra("county_name", selectedCounty.getName());
                         ChooseAreaActivity.this.startActivity(intent);
                         finish();
                         break;
@@ -120,7 +127,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText("中国");
             currentLevel = LEVEL_PROVINCE;
         } else {
-            queryFromServer("", "province");
+            queryFromServer("", QUERY_PROVINCE);
         }
     }
 
@@ -136,7 +143,7 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedProvince.getName());
             currentLevel = LEVEL_CITY;
         } else {
-            queryFromServer(selectedProvince.getCode(), "city");
+            queryFromServer(selectedProvince.getCode(), QUERY_CITY);
         }
     }
     private void queryCounties() {
@@ -151,36 +158,46 @@ public class ChooseAreaActivity extends Activity {
             titleText.setText(selectedCity.getName());
             currentLevel = LEVEL_COUNTY;
         } else {
-            queryFromServer(selectedCity.getCode(), "county");
+            queryFromServer(selectedCity.getCode(), QUERY_COUNTY);
         }
     }
 
 
-    private void queryFromServer(final String code, final String type) {
+    private void queryFromServer(final String code, final int type) {
         String address = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
         showProgressDialog();
         HttpUtil.sendHttpRequest(address, new HttpCallBackListener() {
             @Override
             public void onFinish(String response) {
                 boolean result = false;
-                if(type.equals("province")) {
-                    result = DataParser.parseProvinceResponse(coolWeatherDB, response);
-                } else if(type.equals("city")) {
-                    result = DataParser.parseCityResponse(coolWeatherDB, response, selectedProvince.getId());
-                } else if(type.equals("county")) {
-                    result = DataParser.parseCountyResponse(coolWeatherDB, response, selectedCity.getId());
+                switch (type) {
+                    case QUERY_PROVINCE:
+                        result = DataParser.parseProvinceResponse(coolWeatherDB, response);
+                        break;
+                    case QUERY_CITY:
+                        result = DataParser.parseCityResponse(coolWeatherDB, response, selectedProvince.getId());
+                        break;
+                    case QUERY_COUNTY:
+                        result = DataParser.parseCountyResponse(coolWeatherDB, response, selectedCity.getId());
+                        break;
+                    default:
                 }
                 if(result) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
-                            if(type.equals("province")) {
-                                queryProvinces();
-                            } else if(type.equals("city")) {
-                                queryCities();
-                            } else if(type.equals("county")) {
-                                queryCounties();
+                            switch (type) {
+                                case QUERY_PROVINCE:
+                                    queryProvinces();
+                                    break;
+                                case QUERY_CITY:
+                                    queryCities();
+                                    break;
+                                case QUERY_COUNTY:
+                                    queryCounties();
+                                    break;
+                                default:
                             }
                         }
                     });

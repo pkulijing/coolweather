@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.jingli.coolweather.R;
 import com.example.jingli.coolweather.receiver.AlarmReceiver;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
@@ -47,15 +48,15 @@ public class UpdateWeatherService extends Service {
     private void updateWeather() {
         Log.d("MyLog", "weather updated");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherCode = prefs.getString("weather_code", "");
-        if(!TextUtils.isEmpty(weatherCode)) {
-            String weatherInfoAddress = "http://www.weather.com.cn/data/cityinfo/"
-                    + weatherCode + ".html";
+        final String cityName = prefs.getString("city", "");
+        if(!TextUtils.isEmpty(cityName)) {
+            String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
+                    + cityName;
             HttpUtil.sendHttpRequest(weatherInfoAddress, new HttpCallBackListener() {
                 @Override
                 public void onFinish(String response) {
                     try {
-                        DataParser.parseWeatherResponse(UpdateWeatherService.this, response);
+                        DataParser.parseWeatherResponse(UpdateWeatherService.this, response, cityName);
                         //check if it is foreground. If so, update UI.
                     } catch (Exception e) {
                         onError(e);

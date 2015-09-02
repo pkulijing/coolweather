@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">酷天气</string>
-    <string name="loading">正在加载</string>
+    <string name="loading">正在加载...</string>
     <string name="load_failed">加载失败</string>
     <string name="updated_at">数据更新于</string>
+    <string name="apikey">1134c1266c1bdb600ded321bffc3e781</string>
+    <string name="visibility">能见度</string>
+    <string name="pressure">大气压</string>
+    <string name="wind_sc_unit">级</string>
+    <string name="precipitation">降雨量</string>
+    <string name="humidity">相对湿度</string>
 </resources>

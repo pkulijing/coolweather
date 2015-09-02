@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.jingli.coolweather.db.CoolWeatherDB;
 import com.example.jingli.coolweather.model.City;
@@ -11,6 +12,7 @@ import com.example.jingli.coolweather.model.County;
 import com.example.jingli.coolweather.model.Province;
 import com.example.jingli.coolweather.model.Weather;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -41,7 +43,7 @@ public class DataParser {
     public synchronized static boolean parseCityResponse(CoolWeatherDB coolWeatherDB, String response, int provinceId) {
         if(!TextUtils.isEmpty(response)) {
             String[] cities = response.split(",");
-            if(cities != null && cities.length > 0) {
+            if(cities.length > 0) {
                 for(String city : cities) {
                     City c = new City();
                     String[] parts = city.split("\\|");
@@ -74,18 +76,49 @@ public class DataParser {
         return false;
     }
 
-    public static void parseWeatherResponse(Context context, String response) {
+    public static void parseWeatherResponse(Context context, String response, String countyName) {
         if (!TextUtils.isEmpty(response)) {
             try {
+                Log.d("MyLog", response);
                 JSONObject data = new JSONObject(response);
-                JSONObject weatherInfo = data.getJSONObject("weatherinfo");
+                JSONArray weatherInfos = data.getJSONArray("HeWeather data service 3.0");
+                Log.d("MyLog", weatherInfos.length() + " data returned.");
                 Weather weather = new Weather();
-                weather.setCountyName(weatherInfo.getString("city"));
-                weather.setWeatherCode(weatherInfo.getString("cityid"));
-                weather.setHighTemperature(weatherInfo.getString("temp1"));
-                weather.setLowTemperature(weatherInfo.getString("temp2"));
-                weather.setType(weatherInfo.getString("weather"));
-                weather.setUpdateTime(weatherInfo.getString("ptime"));
+                for(int i = 0; i < weatherInfos.length(); i++) {
+                    JSONObject info = weatherInfos.getJSONObject(i);
+
+                    JSONObject basic = info.getJSONObject("basic");
+                    String city = basic.getString("city");
+                    if(!city.equals(countyName)) {
+                        continue;
+                    }
+
+                    weather.city = city;
+                    weather.cnty = basic.getString("cnty");
+                    weather.id = basic.getString("id");
+                    weather.lat = basic.getString("lat");
+                    weather.lon = basic.getString("lon");
+                    JSONObject update = basic.getJSONObject("update");
+                    weather.update_loc = update.getString("loc");
+                    weather.update_utc = update.getString("utc");
+
+                    JSONObject now = info.getJSONObject("now");
+                    JSONObject cond = now.getJSONObject("cond");
+                    weather.cond_text = cond.getString("txt");
+                    weather.cond_code = cond.getString("code");
+                    weather.fl = now.getString("fl");
+                    weather.hum = now.getString("hum");
+                    weather.pcpn = now.getString("pcpn");
+                    weather.pres = now.getString("pres");
+                    weather.tmp = now.getString("tmp");
+                    weather.vis = now.getString("vis");
+                    JSONObject wind = now.getJSONObject("wind");
+                    weather.wind_deg = wind.getString("deg");
+                    weather.wind_dir = wind.getString("dir");
+                    weather.wind_sc = wind.getString("sc");
+                    weather.wind_spd = wind.getString("spd");
+                    break;//The city has been found
+                }
                 saveWeatherInfo(context, weather);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,29 +132,64 @@ public class DataParser {
         Date now = new Date();
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+
         editor.putBoolean("county_selected", true);
-        editor.putString("county_name", weather.getCountyName());
-        editor.putString("weather_code", weather.getWeatherCode());
-        editor.putString("low_temperature", weather.getLowTemperature());
-        editor.putString("high_temperature", weather.getHighTemperature());
-        editor.putString("weather_type", weather.getType());
-        editor.putString("update_time", weather.getUpdateTime());
+
         editor.putString("date", dateFormat.format(now));
         editor.putString("time", timeFormat.format(now));
+
+        editor.putString("city", weather.city);
+        editor.putString("cnty", weather.cnty);
+        editor.putString("cnty",weather.id);
+        editor.putString("lat", weather.lat);
+        editor.putString("lon", weather.lon);
+        editor.putString("updat_loc", weather.update_loc);
+        editor.putString("update_utc", weather.update_utc);
+
+        editor.putString("cond_code", weather.cond_code);
+        editor.putString("cond_text", weather.cond_text);
+        editor.putString("fl", weather.fl);
+        editor.putString("hum", weather.hum);
+        editor.putString("pcpn", weather.pcpn);
+        editor.putString("pres", weather.pres);
+        editor.putString("tmp", weather.tmp);
+        editor.putString("vis", weather.vis);
+        editor.putString("wind_deg", weather.wind_deg);
+        editor.putString("wind_dir", weather.wind_dir);
+        editor.putString("wind_sc", weather.wind_sc);
+        editor.putString("wind_spd", weather.wind_spd);
+
         editor.commit();
     }
 
     public static Weather retrieveWeatherInfo(Context context) {
         Weather weather = new Weather();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        weather.setCountyName(prefs.getString("county_name", ""));
-        weather.setWeatherCode(prefs.getString("weather_code", ""));
-        weather.setLowTemperature(prefs.getString("low_temperature", ""));
-        weather.setHighTemperature(prefs.getString("high_temperature", ""));
-        weather.setType(prefs.getString("weather_type", ""));
-        weather.setUpdateTime(prefs.getString("update_time", ""));
-        weather.setDate(prefs.getString("date", ""));
-        weather.setTime(prefs.getString("time", ""));
+
+        weather.date = prefs.getString("date", "");
+        weather.time = prefs.getString("time", "");
+
+        weather.city = prefs.getString("city", "");
+        weather.cnty = prefs.getString("cnty", "");
+        weather.id = prefs.getString("id", "");
+        weather.lat = prefs.getString("lat", "");
+        weather.lon = prefs.getString("lon", "");
+        weather.update_loc = prefs.getString("updat_loc", "");
+        weather.update_utc = prefs.getString("update_utc", "");
+
+        weather.cond_code = prefs.getString("cond_code", "");
+        weather.cond_text = prefs.getString("cond_text", "");
+        weather.fl = prefs.getString("fl", "");
+        weather.hum = prefs.getString("hum", "");
+        weather.pcpn = prefs.getString("pcpn", "");
+        weather.pres = prefs.getString("pres", "");
+        weather.tmp = prefs.getString("tmp", "");
+        weather.vis = prefs.getString("vis", "");
+        weather.wind_deg = prefs.getString("wind_deg", "");
+        weather.wind_dir = prefs.getString("wind_dir", "");
+        weather.wind_sc = prefs.getString("wind_sc", "");
+        weather.wind_spd = prefs.getString("wind_spd", "");
+
         return weather;
     }
 
