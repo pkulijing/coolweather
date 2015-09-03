@@ -20,6 +20,7 @@
             android:label="show_weather"/>
         <service android:name=".service.UpdateWeatherService"/>
         <receiver android:name=".receiver.AlarmReceiver"/>
+        <receiver android:name=".activity.WeatherActivity$UpdateWeatherReceiver"/>
     </application>
 
 </manifest>

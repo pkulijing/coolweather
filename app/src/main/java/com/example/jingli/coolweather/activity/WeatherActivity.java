@@ -2,10 +2,14 @@ package com.example.jingli.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +24,7 @@ import com.example.jingli.coolweather.service.UpdateWeatherService;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
+import com.example.jingli.coolweather.util.MyApplication;
 
 
 /**
@@ -42,6 +47,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private TextView updateTimeText;
 
     private ProgressDialog progressDialog;
+
+    private UpdateWeatherReceiver updateWeatherReceiver;
+    private LocalBroadcastManager localBroadcastManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         //Is it appropriate to start the service here?
         Intent intent = new Intent(this, UpdateWeatherService.class);
         startService(intent);
+
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.example.jingli.coolweather.UPDATE_WEATHER");
+        updateWeatherReceiver = new UpdateWeatherReceiver();
+        localBroadcastManager.registerReceiver(updateWeatherReceiver, intentFilter);
     }
 
     @Override
@@ -174,6 +189,33 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private void closeProgressDialog() {
         if(progressDialog != null) {
             progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MyApplication.setWeatherInForeground(true);
+        showWeather();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MyApplication.setWeatherInForeground(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        localBroadcastManager.unregisterReceiver(updateWeatherReceiver);
+    }
+
+    public class UpdateWeatherReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("MyLog", "receivd broadcast!");
+            showWeather();
         }
     }
 

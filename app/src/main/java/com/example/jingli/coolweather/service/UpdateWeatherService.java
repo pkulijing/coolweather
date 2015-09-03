@@ -8,14 +8,17 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.jingli.coolweather.R;
+import com.example.jingli.coolweather.activity.WeatherActivity;
 import com.example.jingli.coolweather.receiver.AlarmReceiver;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
+import com.example.jingli.coolweather.util.MyApplication;
 
 /**
  * Created by jingli on 9/2/15.
@@ -23,6 +26,15 @@ import com.example.jingli.coolweather.util.HttpUtil;
 public class UpdateWeatherService extends Service {
 
     public static final int HALF_HOUR = 30 * 60 * 1000;
+    public static final int HALF_MINUTE = 30 * 1000; //For debug use.
+
+    private LocalBroadcastManager localBroadcastManager;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,6 +69,10 @@ public class UpdateWeatherService extends Service {
                 public void onFinish(String response) {
                     try {
                         DataParser.parseWeatherResponse(UpdateWeatherService.this, response, cityName);
+                        if(MyApplication.isWeatherInForeground()) {
+                            Intent intent = new Intent("com.example.jingli.coolweather.UPDATE_WEATHER");
+                            localBroadcastManager.sendBroadcast(intent);
+                        }
                         //check if it is foreground. If so, update UI.
                     } catch (Exception e) {
                         onError(e);

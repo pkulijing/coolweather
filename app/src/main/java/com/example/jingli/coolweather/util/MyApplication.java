@@ -9,6 +9,7 @@ import android.content.Context;
 public class MyApplication extends Application {
 
     private static Context context;
+    private static boolean weatherInForeground;
 
     @Override
     public void onCreate() {
@@ -18,6 +19,14 @@ public class MyApplication extends Application {
 
     public static Context getContext() {
         return context;
+    }
+
+    public static boolean isWeatherInForeground() {
+        return weatherInForeground;
+    }
+
+    public static void setWeatherInForeground(boolean weatherInForeground) {
+        MyApplication.weatherInForeground = weatherInForeground;
     }
 
 }
