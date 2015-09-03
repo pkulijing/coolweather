@@ -117,6 +117,10 @@ public class DataParser {
                     weather.wind_dir = wind.getString("dir");
                     weather.wind_sc = wind.getString("sc");
                     weather.wind_spd = wind.getString("spd");
+
+                    JSONObject aqi_city = info.getJSONObject("aqi").getJSONObject("city");
+                    weather.aqi = aqi_city.getString("aqi");
+                    weather.qlty = aqi_city.getString("qlty");
                     break;//The city has been found
                 }
                 saveWeatherInfo(context, weather);
@@ -159,6 +163,9 @@ public class DataParser {
         editor.putString("wind_sc", weather.wind_sc);
         editor.putString("wind_spd", weather.wind_spd);
 
+        editor.putString("aqi", weather.aqi);
+        editor.putString("qlty", weather.qlty);
+
         editor.commit();
     }
 
@@ -189,6 +196,9 @@ public class DataParser {
         weather.wind_dir = prefs.getString("wind_dir", "");
         weather.wind_sc = prefs.getString("wind_sc", "");
         weather.wind_spd = prefs.getString("wind_spd", "");
+
+        weather.aqi = prefs.getString("aqi", "");
+        weather.qlty = prefs.getString("qlty", "");
 
         return weather;
     }

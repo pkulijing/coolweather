@@ -34,6 +34,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private TextView currentTimeText;
     private TextView condText;
     private TextView tmpText;
+    private TextView aqiText;
     private TextView windText;
     private TextView humText;
     private TextView visText;
@@ -55,6 +56,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         currentTimeText = (TextView) findViewById(R.id.current_time);
         condText = (TextView) findViewById(R.id.cond_text);
         tmpText = (TextView) findViewById(R.id.tmp_text);
+        aqiText = (TextView) findViewById(R.id.aqi_text);
         windText = (TextView) findViewById(R.id.wind_text);
         humText = (TextView) findViewById(R.id.hum_text);
         visText = (TextView) findViewById(R.id.vis_text);
@@ -150,6 +152,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
         condText.setText(weather.cond_text);
         tmpText.setText(weather.tmp + "∘");
+        aqiText.setText(weather.aqi + " " + weather.qlty);
 
         windText.setText(weather.wind_dir + weather.wind_sc + "级");
         humText.setText(getString(R.string.humidity) + " " + weather.hum + "%");

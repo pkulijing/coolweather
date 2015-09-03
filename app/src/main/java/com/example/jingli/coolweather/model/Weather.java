@@ -32,4 +32,8 @@ public class Weather {
     public String wind_sc;//风力
     public String wind_spd;//风速（kmph）
 
+    //aqi 空气质量
+    public String aqi; //空气质量指数
+    public String qlty;//空气质量类别
+
 }
