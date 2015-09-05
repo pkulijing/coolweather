@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -21,10 +23,15 @@ import android.widget.Toast;
 import com.example.jingli.coolweather.R;
 import com.example.jingli.coolweather.model.Weather;
 import com.example.jingli.coolweather.service.UpdateWeatherService;
+import com.example.jingli.coolweather.util.DailyForecastAdapter;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 import com.example.jingli.coolweather.util.MyApplication;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 /**
@@ -45,6 +52,8 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private TextView visText;
     private TextView presText;
     private TextView updateTimeText;
+
+    private RecyclerView dailyForecast;
 
     private ProgressDialog progressDialog;
 
@@ -73,6 +82,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
         switchCounty.setOnClickListener(this);
         updateWeather.setOnClickListener(this);
+
+        dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
+        dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         String countyName = getIntent().getStringExtra("county_name");
 
@@ -128,7 +140,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
             @Override
             public void onFinish(String response) {
                 try {
-                    DataParser.parseWeatherResponse(WeatherActivity.this, response, countyName);
+                    DataParser.handleWeatherResponse(response, countyName);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -159,14 +171,15 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
     private void showWeather() {
         closeProgressDialog();
-        Weather weather = DataParser.retrieveWeatherInfo(this);
+        Weather weather = DataParser.retrieveWeather();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日 E HH:mm", Locale.CHINA);
+        Date now = new Date();
 
         countyNameText.setText(weather.city);
-
-        currentTimeText.setText(weather.date + " " + weather.time);
+        currentTimeText.setText(dateFormat.format(now));
 
         condText.setText(weather.cond_text);
-        tmpText.setText(weather.tmp + "∘");
+        tmpText.setText(weather.tmp + "°");
         aqiText.setText(weather.aqi + " " + weather.qlty);
 
         windText.setText(weather.wind_dir + weather.wind_sc + "级");
@@ -175,6 +188,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         presText.setText(getString(R.string.pressure) + " " + weather.pres + "hPa");
 
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.update_loc);
+
+        dailyForecast.setAdapter(new DailyForecastAdapter(weather.dailyForecasts));
+
     }
 
     private void showProgressDialog() {

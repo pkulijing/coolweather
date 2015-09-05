@@ -9,4 +9,6 @@
     <string name="wind_sc_unit">级</string>
     <string name="precipitation">降雨量</string>
     <string name="humidity">相对湿度</string>
+    <string name="today">今天</string>
+    <string name="tomorrow">明天</string>
 </resources>

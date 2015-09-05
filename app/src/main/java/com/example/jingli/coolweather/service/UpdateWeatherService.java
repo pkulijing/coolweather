@@ -66,7 +66,7 @@ public class UpdateWeatherService extends Service {
                 @Override
                 public void onFinish(String response) {
                     try {
-                        DataParser.parseWeatherResponse(UpdateWeatherService.this, response, cityName);
+                        DataParser.handleWeatherResponse(response, cityName);
                         if(MyApplication.isWeatherInForeground()) {
                             Intent intent = new Intent("com.example.jingli.coolweather.UPDATE_WEATHER");
                             localBroadcastManager.sendBroadcast(intent);

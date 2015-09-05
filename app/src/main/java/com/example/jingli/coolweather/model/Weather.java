@@ -1,13 +1,12 @@
 package com.example.jingli.coolweather.model;
 
+import java.util.List;
+
 /**
  * Created by jingli on 9/1/15.
  */
 
 public class Weather {
-
-    public String date;
-    public String time;
 
     //basic 基本信息
     public String city;//城市
@@ -35,5 +34,16 @@ public class Weather {
     //aqi 空气质量
     public String aqi; //空气质量指数
     public String qlty;//空气质量类别
+
+    public List<DailyForecast> dailyForecasts;
+
+    public static class DailyForecast {
+        public String date;//日期
+        public String minTemp, maxTemp;//低温，高温
+        public String code_d, code_n;//天气代码
+        public String condition_d, condition_n;//天气描述
+        public String pop;//降水概率
+
+    }
 
 }
