@@ -10,10 +10,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -57,6 +59,8 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
     private ProgressDialog progressDialog;
 
+    private SwipeRefreshLayout refreshLayout;
+
     private UpdateWeatherReceiver updateWeatherReceiver;
     private LocalBroadcastManager localBroadcastManager;
 
@@ -85,6 +89,28 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        // TODO: 9/6/15:
+        // 1. When the whole interface becomes larger than the screen, it will have to be
+        // put into a scrollview wrapper. Touch event on the ScrollView and the RecyclerView will
+        // intercept.
+        // 2. Refresh should be enabled only when the top of the ScrollView is visible. Otherwise
+        // the refresh event would be called when user tries to go back to the top of the ScrollView,
+        // in which case it would be impossible to get back to the top.
+
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
+                String city = prefs.getString("city", "");
+
+                if(!TextUtils.isEmpty(city)) {
+                    String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
+                            + city;
+                    queryFromServer(city, weatherInfoAddress);
+                }
+            }
+        });
 
         String countyName = getIntent().getStringExtra("county_name");
 
@@ -190,6 +216,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.update_loc);
 
         dailyForecast.setAdapter(new DailyForecastAdapter(weather.dailyForecasts));
+        if(refreshLayout.isRefreshing()) {
+            refreshLayout.setRefreshing(false);
+        }
 
     }
 
