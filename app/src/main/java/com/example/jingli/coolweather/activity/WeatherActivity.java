@@ -214,7 +214,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     public class UpdateWeatherReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("MyLog", "receivd broadcast!");
+            //Log.d("MyLog", "receivd broadcast!");
             showWeather();
         }
     }

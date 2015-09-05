@@ -12,8 +12,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.jingli.coolweather.R;
-import com.example.jingli.coolweather.activity.WeatherActivity;
 import com.example.jingli.coolweather.receiver.AlarmReceiver;
 import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
