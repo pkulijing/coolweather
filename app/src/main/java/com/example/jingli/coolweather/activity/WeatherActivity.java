@@ -42,7 +42,7 @@ import java.util.Locale;
 public class WeatherActivity extends Activity implements View.OnClickListener{
 
     private Button switchCounty;
-    private Button updateWeather;
+    //private Button updateWeather;
 
     private TextView countyNameText;
     private TextView currentTimeText;
@@ -71,7 +71,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.weather_layout);
 
         switchCounty = (Button) findViewById(R.id.switch_county);
-        updateWeather = (Button) findViewById(R.id.update_weather);
+        //updateWeather = (Button) findViewById(R.id.update_weather);
 
         countyNameText = (TextView) findViewById(R.id.county_name);
         currentTimeText = (TextView) findViewById(R.id.current_time);
@@ -85,7 +85,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         updateTimeText = (TextView) findViewById(R.id.update_time);
 
         switchCounty.setOnClickListener(this);
-        updateWeather.setOnClickListener(this);
+        //updateWeather.setOnClickListener(this);
 
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -144,18 +144,18 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                 startActivity(intent);
                 finish();
                 break;
-            case R.id.update_weather:
-                Log.d("MyLog", "manual update executed.");
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                String city = prefs.getString("city", "");
-
-                if(!TextUtils.isEmpty(city)) {
-                    String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
-                            + city;
-                    showProgressDialog();
-                    queryFromServer(city, weatherInfoAddress);
-                }
-                break;
+//            case R.id.update_weather:
+//                Log.d("MyLog", "manual update executed.");
+//                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//                String city = prefs.getString("city", "");
+//
+//                if(!TextUtils.isEmpty(city)) {
+//                    String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
+//                            + city;
+//                    showProgressDialog();
+//                    queryFromServer(city, weatherInfoAddress);
+//                }
+//                break;
             default:
         }
     }
