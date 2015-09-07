@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +61,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private ProgressDialog progressDialog;
 
     private SwipeRefreshLayout refreshLayout;
+    private ScrollView scrollView;
 
     private UpdateWeatherReceiver updateWeatherReceiver;
     private LocalBroadcastManager localBroadcastManager;
@@ -87,6 +89,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         switchCounty.setOnClickListener(this);
         //updateWeather.setOnClickListener(this);
 
+        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         // TODO: 9/6/15:
@@ -97,6 +100,28 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         // the refresh event would be called when user tries to go back to the top of the ScrollView,
         // in which case it would be impossible to get back to the top.
 
+        dailyForecast.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                int action = e.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_MOVE:
+                        dailyForecast.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
