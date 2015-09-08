@@ -17,9 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,14 +35,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class WeatherActivity extends Activity implements View.OnClickListener{
-
-    private Button switchCounty;
-    //private Button updateWeather;
-
     private TextView countyNameText;
     private TextView currentTimeText;
     private TextView condText;
@@ -61,7 +52,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private ProgressDialog progressDialog;
 
     private SwipeRefreshLayout refreshLayout;
-    private ScrollView scrollView;
 
     private UpdateWeatherReceiver updateWeatherReceiver;
     private LocalBroadcastManager localBroadcastManager;
@@ -69,10 +59,10 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weather_layout);
 
-        switchCounty = (Button) findViewById(R.id.switch_county);
+        Button switchCounty = (Button) findViewById(R.id.switch_county);
         //updateWeather = (Button) findViewById(R.id.update_weather);
 
         countyNameText = (TextView) findViewById(R.id.county_name);
@@ -89,7 +79,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         switchCounty.setOnClickListener(this);
         //updateWeather.setOnClickListener(this);
 
-        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         // TODO: 9/6/15:
@@ -128,11 +117,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
             public void onRefresh() {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
                 String city = prefs.getString("city", "");
+                Log.d("MyLog", "onRefresh() starts. city = " + city);
 
                 if(!TextUtils.isEmpty(city)) {
                     String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
                             + city;
                     queryFromServer(city, weatherInfoAddress);
+                    Log.d("MyLog", "onRefresh() finished. isRefreshing() = " + refreshLayout.isRefreshing());
                 }
             }
         });
@@ -142,6 +133,11 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         if(TextUtils.isEmpty(countyName)) {
             showWeather();
         } else {
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
+                    WeatherActivity.this).edit();
+            editor.putString("city",  countyName);
+            editor.apply();
+
             String weatherAddress = "http://apis.baidu.com/heweather/weather/free?city="
                     + countyName;
             showProgressDialog();
@@ -195,6 +191,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if(refreshLayout.isRefreshing()) {
+                                refreshLayout.setRefreshing(false);
+                            }
                             showWeather();
                         }
                     });
@@ -214,6 +213,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                                 WeatherActivity.this,
                                 WeatherActivity.this.getString(R.string.load_failed),
                                 Toast.LENGTH_SHORT).show();
+                        if(refreshLayout.isRefreshing()) {
+                            refreshLayout.setRefreshing(false);
+                        }
                     }
                 });
             }
@@ -241,10 +243,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.update_loc);
 
         dailyForecast.setAdapter(new DailyForecastAdapter(weather.dailyForecasts));
-        if(refreshLayout.isRefreshing()) {
-            refreshLayout.setRefreshing(false);
-        }
-
     }
 
     private void showProgressDialog() {

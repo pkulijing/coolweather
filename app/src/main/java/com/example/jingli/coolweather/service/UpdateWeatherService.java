@@ -18,13 +18,10 @@ import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 import com.example.jingli.coolweather.util.MyApplication;
 
-/**
- * Created by jingli on 9/2/15.
- */
 public class UpdateWeatherService extends Service {
 
     public static final int HALF_HOUR = 30 * 60 * 1000;
-    public static final int HALF_MINUTE = 30 * 1000; //For debug use.
+    //public static final int HALF_MINUTE = 30 * 1000; //For debug use.
 
     private LocalBroadcastManager localBroadcastManager;
 

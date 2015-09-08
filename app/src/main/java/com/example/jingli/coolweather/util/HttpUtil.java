@@ -8,9 +8,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class HttpUtil {
 
     public static void sendHttpRequest(final String address, final HttpCallBackListener listener) {

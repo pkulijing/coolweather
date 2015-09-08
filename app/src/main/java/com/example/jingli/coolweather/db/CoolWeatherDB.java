@@ -12,9 +12,6 @@ import com.example.jingli.coolweather.model.Province;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class CoolWeatherDB {
     public static final String DB_NAME = "cool_weather";
     public static final int VERSION = 1;
@@ -67,7 +64,7 @@ public class CoolWeatherDB {
     }
     /*******************************************************************************/
     public List<Province> loadProvinces() {
-        List<Province> provinces = new ArrayList<Province>();
+        List<Province> provinces = new ArrayList<>();
         Cursor cursor = db.query("Province", null, null, null, null, null, null);
         if(cursor != null) {
             if(cursor.moveToFirst()) {
@@ -85,7 +82,7 @@ public class CoolWeatherDB {
     }
 
     public List<City> loadCities(int provinceId) {
-        List<City> cities = new ArrayList<City>();
+        List<City> cities = new ArrayList<>();
         Cursor cursor = db.query("City", null,
                 "province_id = ?",
                 new String[] { String.valueOf(provinceId) },
@@ -107,7 +104,7 @@ public class CoolWeatherDB {
     }
 
     public List<County> loadCounties(int cityId) {
-        List<County> counties = new ArrayList<County>();
+        List<County> counties = new ArrayList<>();
         Cursor cursor = db.query("County", null,
                 "city_id = ?",
                 new String[] { String.valueOf(cityId)},

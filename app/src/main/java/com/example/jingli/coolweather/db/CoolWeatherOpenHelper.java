@@ -3,9 +3,7 @@ package com.example.jingli.coolweather.db;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
-/**
- * Created by jingli on 9/1/15.
- */
+
 public class CoolWeatherOpenHelper extends SQLiteOpenHelper {
 
     public static final String CREATE_PROVINCE = "create table Province("

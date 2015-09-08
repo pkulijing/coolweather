@@ -2,10 +2,6 @@ package com.example.jingli.coolweather.model;
 
 import java.util.List;
 
-/**
- * Created by jingli on 9/1/15.
- */
-
 public class Weather {
 
     //basic 基本信息

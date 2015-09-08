@@ -1,7 +1,6 @@
 package com.example.jingli.coolweather.util;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +9,9 @@ import com.example.jingli.coolweather.R;
 import com.example.jingli.coolweather.model.Weather;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by jingli on 9/6/15.
- */
 public class DailyForecastAdapter extends RecyclerView.Adapter<DailyForecastViewHolder>{
 
     private List<Weather.DailyForecast> dailyForecasts;

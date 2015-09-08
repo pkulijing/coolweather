@@ -6,9 +6,6 @@ import android.content.Intent;
 
 import com.example.jingli.coolweather.service.UpdateWeatherService;
 
-/**
- * Created by jingli on 9/2/15.
- */
 public class AlarmReceiver extends BroadcastReceiver {
 
     @Override

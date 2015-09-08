@@ -1,8 +1,5 @@
 package com.example.jingli.coolweather.model;
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class Province {
     private int id;
     private String name;

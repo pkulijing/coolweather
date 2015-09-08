@@ -1,6 +1,5 @@
 package com.example.jingli.coolweather.util;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -15,19 +14,13 @@ import com.example.jingli.coolweather.model.Weather;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class DataParser {
     public synchronized static boolean parseProvinceResponse(CoolWeatherDB coolWeatherDB, String response) {
         if(!TextUtils.isEmpty(response)) {
             String[] provinces = response.split(",");
-            if(provinces != null && provinces.length > 0) {
+            if(provinces.length > 0) {
                 for(String province : provinces) {
                     String[] parts = province.split("\\|");
                     Province p = new Province();
@@ -62,7 +55,7 @@ public class DataParser {
     public synchronized static boolean parseCountyResponse(CoolWeatherDB coolWeatherDB, String response, int cityId) {
         if(!TextUtils.isEmpty(response)) {
             String[] counties = response.split(",");
-            if(counties != null && counties.length > 0) {
+            if(counties.length > 0) {
                 for(String county : counties) {
                     String[] parts = county.split("\\|");
                     County c = new County();
@@ -112,7 +105,7 @@ public class DataParser {
             weather.aqi = aqi_city.getString("aqi");
             weather.qlty = aqi_city.getString("qlty");
 
-            weather.dailyForecasts = new ArrayList<Weather.DailyForecast>();
+            weather.dailyForecasts = new ArrayList<>();
 
             JSONArray dailyForecasts = info.getJSONArray("daily_forecast");
             for(int j = 0; j < dailyForecasts.length(); j++) {
@@ -139,7 +132,7 @@ public class DataParser {
     public static void handleWeatherResponse(String response, String countyName) {
         if (!TextUtils.isEmpty(response)) {
             try {
-                Log.d("MyLog", response);
+                //Log.d("MyLog", response);
                 JSONObject data = new JSONObject(response);
                 JSONArray weatherInfos = data.getJSONArray("HeWeather data service 3.0");
                 Log.d("MyLog", weatherInfos.length() + " data returned.");
@@ -154,6 +147,7 @@ public class DataParser {
 
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).edit();
                     editor.putBoolean("county_selected", true);
+                    editor.putString("city", city);
                     editor.putString("weatherJSONObject", info.toString());
                     editor.commit();
                     break;//The city has been found

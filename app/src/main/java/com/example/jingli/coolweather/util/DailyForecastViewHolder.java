@@ -7,9 +7,7 @@ import android.widget.TextView;
 
 import com.example.jingli.coolweather.R;
 
-/**
- * Created by jingli on 9/6/15.
- */
+
 public class DailyForecastViewHolder extends RecyclerView.ViewHolder {
 
     TextView dateText;

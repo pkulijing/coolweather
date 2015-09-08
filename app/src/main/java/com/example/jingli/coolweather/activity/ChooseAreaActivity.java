@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -24,13 +23,9 @@ import com.example.jingli.coolweather.util.DataParser;
 import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by jingli on 9/1/15.
- */
 public class ChooseAreaActivity extends Activity {
 
     public static final int LEVEL_PROVINCE = 0;
@@ -48,7 +43,7 @@ public class ChooseAreaActivity extends Activity {
 
     private ListView listView;
     private ArrayAdapter<String> adapter;
-    private List<String> dataList = new ArrayList<String>();
+    private List<String> dataList = new ArrayList<>();
 
     private CoolWeatherDB coolWeatherDB;
 
@@ -79,7 +74,7 @@ public class ChooseAreaActivity extends Activity {
         }
 
         //Log.d("MyLog", "Still coming here");
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
 
         listView = (ListView)findViewById(R.id.list_view);
@@ -87,7 +82,7 @@ public class ChooseAreaActivity extends Activity {
 
         coolWeatherDB = CoolWeatherDB.getInstance(this);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
