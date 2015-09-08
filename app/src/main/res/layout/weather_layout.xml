@@ -12,7 +12,6 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -22,8 +21,8 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerVertical="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="10dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="10dp"
                     android:background="@drawable/settings"/>
                 <TextView
                     android:id="@+id/county_name"
@@ -67,22 +66,19 @@
                     <TextView
                         android:id="@+id/cond_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="60dp"
                         android:gravity="center"
                         android:textSize="36sp"/>
                     <TextView
                         android:id="@+id/tmp_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="2"
+                        android:layout_height="120dp"
                         android:gravity="center"
                         android:textSize="96sp"/>
                     <TextView
                         android:id="@+id/aqi_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="60dp"
                         android:gravity="center"
                         android:textSize="24sp"/>
                 </LinearLayout>
@@ -94,31 +90,27 @@
                     <TextView
                         android:id="@+id/wind_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="60dp"
                         android:gravity="center_vertical"
                         android:textSize="24sp"/>
                     <TextView
                         android:id="@+id/hum_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="60dp"
                         android:gravity="center_vertical"
-                        android:textSize="24sp"
-                        android:layout_weight="1"/>
+                        android:textSize="24sp"/>
                     <TextView
                         android:id="@+id/vis_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="60dp"
                         android:gravity="center_vertical"
-                        android:textSize="24sp"
-                        android:layout_weight="1"/>
+                        android:textSize="24sp"/>
                     <TextView
                         android:id="@+id/pres_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="60dp"
                         android:textSize="24sp"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"/>
+                        android:gravity="center_vertical"/>
                 </LinearLayout>
             </LinearLayout>
             <android.support.v7.widget.RecyclerView
@@ -137,10 +129,10 @@
                     android:textSize="18sp"
                     android:textColor="#000000"
                     android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"/>
+                    android:layout_alignParentEnd="true"/>
 
             </RelativeLayout>
         </LinearLayout>
 
     </ScrollView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
