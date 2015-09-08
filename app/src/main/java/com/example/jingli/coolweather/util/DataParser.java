@@ -135,7 +135,7 @@ public class DataParser {
                 //Log.d("MyLog", response);
                 JSONObject data = new JSONObject(response);
                 JSONArray weatherInfos = data.getJSONArray("HeWeather data service 3.0");
-                Log.d("MyLog", weatherInfos.length() + " data returned.");
+                //Log.d("MyLog", weatherInfos.length() + " data returned.");
                 for(int i = 0; i < weatherInfos.length(); i++) {
                     JSONObject info = weatherInfos.getJSONObject(i);
 

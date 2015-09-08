@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +18,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,12 +34,14 @@ import com.example.jingli.coolweather.util.HttpUtil;
 import com.example.jingli.coolweather.util.MyApplication;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 
-public class WeatherActivity extends Activity implements View.OnClickListener{
-    private TextView countyNameText;
+public class WeatherActivity extends Activity{
+
     private TextView currentTimeText;
     private TextView condText;
     private TextView tmpText;
@@ -56,16 +61,15 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private UpdateWeatherReceiver updateWeatherReceiver;
     private LocalBroadcastManager localBroadcastManager;
 
+    private ListView leftDrawer;
+    private List<String> citiesList;
+
+    private DrawerLayout drawerLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weather_layout);
 
-        Button switchCounty = (Button) findViewById(R.id.switch_county);
-        //updateWeather = (Button) findViewById(R.id.update_weather);
-
-        countyNameText = (TextView) findViewById(R.id.county_name);
         currentTimeText = (TextView) findViewById(R.id.current_time);
         condText = (TextView) findViewById(R.id.cond_text);
         tmpText = (TextView) findViewById(R.id.tmp_text);
@@ -75,9 +79,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         visText = (TextView) findViewById(R.id.vis_text);
         presText = (TextView) findViewById(R.id.pres_text);
         updateTimeText = (TextView) findViewById(R.id.update_time);
-
-        switchCounty.setOnClickListener(this);
-        //updateWeather.setOnClickListener(this);
 
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -117,13 +118,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
             public void onRefresh() {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
                 String city = prefs.getString("city", "");
-                Log.d("MyLog", "onRefresh() starts. city = " + city);
+                //Log.d("MyLog", "onRefresh() starts. city = " + city);
 
                 if(!TextUtils.isEmpty(city)) {
                     String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
                             + city;
                     queryFromServer(city, weatherInfoAddress);
-                    Log.d("MyLog", "onRefresh() finished. isRefreshing() = " + refreshLayout.isRefreshing());
+                    //Log.d("MyLog", "onRefresh() finished. isRefreshing() = " + refreshLayout.isRefreshing());
                 }
             }
         });
@@ -145,7 +146,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         }
 
         //Is it appropriate to start the service here?
-        Intent intent = new Intent(this, UpdateWeatherService.class);
+        final Intent intent = new Intent(this, UpdateWeatherService.class);
         startService(intent);
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
@@ -154,35 +155,55 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         intentFilter.addAction("com.example.jingli.coolweather.UPDATE_WEATHER");
         updateWeatherReceiver = new UpdateWeatherReceiver();
         localBroadcastManager.registerReceiver(updateWeatherReceiver, intentFilter);
-    }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.switch_county:
-                Intent intent = new Intent(this, ChooseAreaActivity.class);
-                intent.putExtra("from_weather_activity", true);
-                startActivity(intent);
-                finish();
-                break;
-//            case R.id.update_weather:
-//                Log.d("MyLog", "manual update executed.");
-//                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//                String city = prefs.getString("city", "");
-//
-//                if(!TextUtils.isEmpty(city)) {
-//                    String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
-//                            + city;
-//                    showProgressDialog();
-//                    queryFromServer(city, weatherInfoAddress);
-//                }
-//                break;
-            default:
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        leftDrawer = (ListView) findViewById(R.id.left_drawer);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String citiesString = prefs.getString("all_cities", "");
+        final String[] cities = citiesString.split(",");
+
+        citiesList = new ArrayList<>();
+
+        for(String city : cities) {
+            citiesList.add(city);
         }
+        citiesList.add(getString(R.string.add_city));
+
+        leftDrawer.setAdapter(new ArrayAdapter<>(WeatherActivity.this, android.R.layout.simple_list_item_1, citiesList));
+        leftDrawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("MyLog", "position = " + position + " " + citiesList.get(position));
+                if(position == citiesList.size() - 1) {
+                    Log.d("MyLog", "This line is reached");
+                    Intent chooseAreaIntent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
+                    intent.putExtra("from_weather_activity", true);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
+                            WeatherActivity.this).edit();
+                    editor.putBoolean("county_selected", false);
+                    editor.apply();
+                    startActivity(chooseAreaIntent);
+                    finish();
+                } else {
+                    String cityName = citiesList.get(position);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
+                            WeatherActivity.this).edit();
+                    editor.putString("city",  cityName);
+                    editor.apply();
+
+                    String weatherAddress = "http://apis.baidu.com/heweather/weather/free?city="
+                            + cityName;
+                    showProgressDialog();
+                    queryFromServer(cityName, weatherAddress);
+                    drawerLayout.closeDrawer(leftDrawer);
+                }
+
+            }
+        });
     }
 
     private void queryFromServer(final String countyName, String address) {
-        Log.d("MyLog", address);
+        //Log.d("MyLog", address);
         HttpUtil.sendHttpRequest(address, new HttpCallBackListener() {
             @Override
             public void onFinish(String response) {
@@ -228,7 +249,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日 E HH:mm", Locale.CHINA);
         Date now = new Date();
 
-        countyNameText.setText(weather.city);
+        getActionBar().setTitle(weather.city);
         currentTimeText.setText(dateFormat.format(now));
 
         condText.setText(weather.cond_text);

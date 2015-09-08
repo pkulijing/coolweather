@@ -38,7 +38,6 @@ public class ChooseAreaActivity extends Activity {
 
     private int currentLevel;
 
-    private TextView titleText;
     private ProgressDialog progressDialog;
 
     private ListView listView;
@@ -78,7 +77,6 @@ public class ChooseAreaActivity extends Activity {
         setContentView(R.layout.choose_area);
 
         listView = (ListView)findViewById(R.id.list_view);
-        titleText = (TextView) findViewById(R.id.title_text);
 
         coolWeatherDB = CoolWeatherDB.getInstance(this);
 
@@ -98,8 +96,29 @@ public class ChooseAreaActivity extends Activity {
                         break;
                     case LEVEL_COUNTY:
                         selectedCounty = countyList.get(position);
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ChooseAreaActivity.this);
+                        String citiesString = prefs.getString("all_cities", "");
+                        String[] cities = citiesString.split(",");
+                        List<String> citiesList = new ArrayList<>();
+                        for(String city : cities) {
+                            citiesList.add(city);
+                        }
+
+                        String county_name = selectedCounty.getName();
+                        if(!citiesList.contains(county_name)) {
+                            SharedPreferences.Editor editor = prefs.edit();
+                            if(citiesString.equals("")) {
+                                editor.putString("all_cities", county_name);
+                            } else {
+                                editor.putString("all_cities", citiesString + "," + county_name);
+                            }
+                            editor.apply();
+                        }
+
+                        Log.d("MyLog", prefs.getString("all_cities", "all cities is void"));
+
                         Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
-                        intent.putExtra("county_name", selectedCounty.getName());
+                        intent.putExtra("county_name", county_name);
                         ChooseAreaActivity.this.startActivity(intent);
                         finish();
                         break;
@@ -119,7 +138,7 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            titleText.setText("中国");
+            getActionBar().setTitle("中国");
             currentLevel = LEVEL_PROVINCE;
         } else {
             queryFromServer("", QUERY_PROVINCE);
@@ -135,7 +154,7 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            titleText.setText(selectedProvince.getName());
+            getActionBar().setTitle(selectedProvince.getName());
             currentLevel = LEVEL_CITY;
         } else {
             queryFromServer(selectedProvince.getCode(), QUERY_CITY);
@@ -150,7 +169,7 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            titleText.setText(selectedCity.getName());
+            getActionBar().setTitle(selectedCity.getName());
             currentLevel = LEVEL_COUNTY;
         } else {
             queryFromServer(selectedCity.getCode(), QUERY_COUNTY);
