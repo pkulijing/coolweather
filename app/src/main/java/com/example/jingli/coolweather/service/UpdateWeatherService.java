@@ -53,7 +53,6 @@ public class UpdateWeatherService extends Service {
     }
 
     private void updateWeather() {
-        Log.d("MyLog", "weather updated");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final String cityName = prefs.getString("city", "");
         if(!TextUtils.isEmpty(cityName)) {

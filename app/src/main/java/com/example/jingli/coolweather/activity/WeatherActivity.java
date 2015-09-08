@@ -118,13 +118,11 @@ public class WeatherActivity extends Activity{
             public void onRefresh() {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
                 String city = prefs.getString("city", "");
-                //Log.d("MyLog", "onRefresh() starts. city = " + city);
 
                 if(!TextUtils.isEmpty(city)) {
                     String weatherInfoAddress = "http://apis.baidu.com/heweather/weather/free?city="
                             + city;
                     queryFromServer(city, weatherInfoAddress);
-                    //Log.d("MyLog", "onRefresh() finished. isRefreshing() = " + refreshLayout.isRefreshing());
                 }
             }
         });
@@ -175,13 +173,11 @@ public class WeatherActivity extends Activity{
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("MyLog", "position = " + position + " " + citiesList.get(position));
                 if(position == citiesList.size() - 1) {
-                    Log.d("MyLog", "This line is reached");
-                    Intent chooseAreaIntent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
-                    intent.putExtra("from_weather_activity", true);
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
                             WeatherActivity.this).edit();
-                    editor.putBoolean("county_selected", false);
                     editor.apply();
+                    Intent chooseAreaIntent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
+                    chooseAreaIntent.putExtra("from_weather_activity", true);
                     startActivity(chooseAreaIntent);
                     finish();
                 } else {
@@ -303,7 +299,6 @@ public class WeatherActivity extends Activity{
     public class UpdateWeatherReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Log.d("MyLog", "receivd broadcast!");
             showWeather();
         }
     }

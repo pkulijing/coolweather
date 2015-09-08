@@ -63,8 +63,7 @@ public class ChooseAreaActivity extends Activity {
 
         if(!isFromWeatherActivity) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            Log.d("MyLog", "county_selected = " + prefs.getBoolean("county_selected", false));
-            if(prefs.getBoolean("county_selected", false)) {
+            if(!prefs.getString("city", "").equals("")) {
                 Intent intent = new Intent(this, WeatherActivity.class);
                 startActivity(intent);
                 finish();
@@ -114,8 +113,6 @@ public class ChooseAreaActivity extends Activity {
                             }
                             editor.apply();
                         }
-
-                        Log.d("MyLog", prefs.getString("all_cities", "all cities is void"));
 
                         Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
                         intent.putExtra("county_name", county_name);

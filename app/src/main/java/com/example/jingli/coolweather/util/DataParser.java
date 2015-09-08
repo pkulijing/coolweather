@@ -146,7 +146,6 @@ public class DataParser {
                     }
 
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).edit();
-                    editor.putBoolean("county_selected", true);
                     editor.putString("city", city);
                     editor.putString("weatherJSONObject", info.toString());
                     editor.commit();
