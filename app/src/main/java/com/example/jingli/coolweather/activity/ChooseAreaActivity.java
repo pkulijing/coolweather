@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -44,6 +45,9 @@ public class ChooseAreaActivity extends Activity {
     private ArrayAdapter<String> adapter;
     private List<String> dataList = new ArrayList<>();
 
+    private Toolbar toolbar;
+    private TextView nameText;
+
     private CoolWeatherDB coolWeatherDB;
 
     private List<Province> provinceList;
@@ -54,14 +58,14 @@ public class ChooseAreaActivity extends Activity {
     private City selectedCity;
     private County selectedCounty;
 
-    private boolean isFromWeatherActivity;
+    private boolean isFromEditLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
+        isFromEditLocation = getIntent().getBooleanExtra("from_edit_location", false);
 
-        if(!isFromWeatherActivity) {
+        if(!isFromEditLocation) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             if(!prefs.getString("city", "").equals("")) {
                 Intent intent = new Intent(this, WeatherActivity.class);
@@ -76,6 +80,8 @@ public class ChooseAreaActivity extends Activity {
         setContentView(R.layout.choose_area);
 
         listView = (ListView)findViewById(R.id.list_view);
+        toolbar = (Toolbar) findViewById(R.id.choose_area_toolbar);
+        nameText = (TextView) toolbar.findViewById(R.id.name_text);
 
         coolWeatherDB = CoolWeatherDB.getInstance(this);
 
@@ -114,9 +120,15 @@ public class ChooseAreaActivity extends Activity {
                             editor.apply();
                         }
 
-                        Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
-                        intent.putExtra("county_name", county_name);
-                        ChooseAreaActivity.this.startActivity(intent);
+                        if(isFromEditLocation) {
+                            Intent intent = new Intent();
+                            intent.putExtra("new_city_name", county_name);
+                            setResult(RESULT_OK, intent);
+                        } else {
+                            Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                            intent.putExtra("county_name", county_name);
+                            ChooseAreaActivity.this.startActivity(intent);
+                        }
                         finish();
                         break;
                     default:
@@ -127,6 +139,7 @@ public class ChooseAreaActivity extends Activity {
     }
 
     private void queryProvinces() {
+        nameText.setText(getString(R.string.china));
         provinceList = coolWeatherDB.loadProvinces();
         if(provinceList.size() > 0) {
             dataList.clear();
@@ -135,7 +148,6 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            getActionBar().setTitle("中国");
             currentLevel = LEVEL_PROVINCE;
         } else {
             queryFromServer("", QUERY_PROVINCE);
@@ -143,6 +155,7 @@ public class ChooseAreaActivity extends Activity {
     }
 
     private void queryCities() {
+        nameText.setText(selectedProvince.getName());
         cityList = coolWeatherDB.loadCities(selectedProvince.getId());
         if(cityList.size() > 0) {
             dataList.clear();
@@ -151,13 +164,13 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            getActionBar().setTitle(selectedProvince.getName());
             currentLevel = LEVEL_CITY;
         } else {
             queryFromServer(selectedProvince.getCode(), QUERY_CITY);
         }
     }
     private void queryCounties() {
+        nameText.setText(selectedCity.getName());
         countyList = coolWeatherDB.loadCounties(selectedCity.getId());
         if(countyList.size() > 0) {
             dataList.clear();
@@ -166,7 +179,6 @@ public class ChooseAreaActivity extends Activity {
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            getActionBar().setTitle(selectedCity.getName());
             currentLevel = LEVEL_COUNTY;
         } else {
             queryFromServer(selectedCity.getCode(), QUERY_COUNTY);
@@ -256,10 +268,6 @@ public class ChooseAreaActivity extends Activity {
                 queryProvinces();
                 break;
             default:
-                if(isFromWeatherActivity) {
-                    Intent intent = new Intent(this, WeatherActivity.class);
-                    startActivity(intent);
-                }
                 finish();
         }
     }

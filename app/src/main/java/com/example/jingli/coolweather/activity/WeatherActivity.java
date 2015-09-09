@@ -14,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -33,6 +34,8 @@ import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 import com.example.jingli.coolweather.util.MyApplication;
 
+import org.w3c.dom.Text;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +45,7 @@ import java.util.Locale;
 
 public class WeatherActivity extends Activity{
 
+    private static final int EDIT_LIST = 1;
     private TextView currentTimeText;
     private TextView condText;
     private TextView tmpText;
@@ -62,9 +66,12 @@ public class WeatherActivity extends Activity{
     private LocalBroadcastManager localBroadcastManager;
 
     private ListView leftDrawer;
-    private List<String> citiesList;
+    private List<String> citiesList = new ArrayList<>();
 
     private DrawerLayout drawerLayout;
+    private Toolbar toolbar;
+    private TextView cityNameText;
+    private ArrayAdapter<String> adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +88,12 @@ public class WeatherActivity extends Activity{
         updateTimeText = (TextView) findViewById(R.id.update_time);
 
         dailyForecast = (RecyclerView) findViewById(R.id.daily_forecast);
+
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        toolbar = (Toolbar) findViewById(R.id.weather_toolbar);
+        cityNameText = (TextView) toolbar.findViewById(R.id.city_name_text);
+
         // TODO: 9/6/15:
         // 1. When the whole interface becomes larger than the screen, it will have to be
         // put into a scrollview wrapper. Touch event on the ScrollView and the RecyclerView will
@@ -160,31 +172,25 @@ public class WeatherActivity extends Activity{
         String citiesString = prefs.getString("all_cities", "");
         final String[] cities = citiesString.split(",");
 
-        citiesList = new ArrayList<>();
-
         for(String city : cities) {
             citiesList.add(city);
         }
-        citiesList.add(getString(R.string.add_city));
+        citiesList.add(getString(R.string.edit_list));
 
-        leftDrawer.setAdapter(new ArrayAdapter<>(WeatherActivity.this, android.R.layout.simple_list_item_1, citiesList));
+        adapter = new ArrayAdapter<>(WeatherActivity.this, android.R.layout.simple_list_item_1, citiesList);
+        leftDrawer.setAdapter(adapter);
         leftDrawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("MyLog", "position = " + position + " " + citiesList.get(position));
-                if(position == citiesList.size() - 1) {
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
-                            WeatherActivity.this).edit();
-                    editor.apply();
-                    Intent chooseAreaIntent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
-                    chooseAreaIntent.putExtra("from_weather_activity", true);
-                    startActivity(chooseAreaIntent);
-                    finish();
+                if (position == citiesList.size() - 1) {
+                    Intent editLocationIntent = new Intent(WeatherActivity.this, EditLocationActivity.class);
+                    startActivityForResult(editLocationIntent, EDIT_LIST);
                 } else {
                     String cityName = citiesList.get(position);
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
                             WeatherActivity.this).edit();
-                    editor.putString("city",  cityName);
+                    editor.putString("city", cityName);
                     editor.apply();
 
                     String weatherAddress = "http://apis.baidu.com/heweather/weather/free?city="
@@ -245,7 +251,7 @@ public class WeatherActivity extends Activity{
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年M月d日 E HH:mm", Locale.CHINA);
         Date now = new Date();
 
-        getActionBar().setTitle(weather.city);
+        cityNameText.setText(weather.city);
         currentTimeText.setText(dateFormat.format(now));
 
         condText.setText(weather.cond_text);
@@ -260,6 +266,7 @@ public class WeatherActivity extends Activity{
         updateTimeText.setText(this.getString(R.string.updated_at) + weather.update_loc);
 
         dailyForecast.setAdapter(new DailyForecastAdapter(weather.dailyForecasts));
+
     }
 
     private void showProgressDialog() {
@@ -303,4 +310,24 @@ public class WeatherActivity extends Activity{
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case EDIT_LIST:
+                if(resultCode == RESULT_OK) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    String citiesString = prefs.getString("all_cities", "");
+                    String[] cities = citiesString.split(",");
+                    citiesList.clear();
+                    for (String city : cities) {
+                        citiesList.add(city);
+                    }
+                    citiesList.add(getString(R.string.edit_list));
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+            default:
+        }
+
+    }
 }
