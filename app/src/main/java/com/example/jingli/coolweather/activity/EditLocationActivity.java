@@ -1,7 +1,5 @@
 package com.example.jingli.coolweather.activity;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -11,20 +9,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.jingli.coolweather.R;
 import com.example.jingli.coolweather.util.EditLocationAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class EditLocationActivity extends AppCompatActivity {
 
 
     private static final int ADD_CITY = 1;
-    private ListView editLocationList;
-    private Toolbar toolbar;
     private EditLocationAdapter adapter;
 
     private List<String> citiesList = new ArrayList<>();
@@ -33,8 +29,8 @@ public class EditLocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_location);
 
-        editLocationList = (ListView) findViewById(R.id.edit_location_list);
-        toolbar = (Toolbar) findViewById(R.id.edit_location_toolbar);
+        ListView editLocationList = (ListView) findViewById(R.id.edit_location_list);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.edit_location_toolbar);
         toolbar.setTitle(getString(R.string.edit_list));
         setSupportActionBar(toolbar);
 
@@ -42,9 +38,7 @@ public class EditLocationActivity extends AppCompatActivity {
         String citiesString = prefs.getString("all_cities", "");
         String[] cities = citiesString.split(",");
 
-        for(String city : cities) {
-            citiesList.add(city);
-        }
+        Collections.addAll(citiesList, cities);
         adapter = new EditLocationAdapter(EditLocationActivity.this, R.layout.edit_location_item, citiesList);
         editLocationList.setAdapter(adapter);
     }
@@ -63,8 +57,6 @@ public class EditLocationActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         switch (item.getItemId()) {
-            case R.id.edit_list:
-                break;
             case R.id.add_city:
                 Intent chooseAreaIntent = new Intent(EditLocationActivity.this, ChooseAreaActivity.class);
                 chooseAreaIntent.putExtra("from_edit_location", true);

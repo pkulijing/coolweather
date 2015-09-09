@@ -11,6 +11,7 @@
         android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary">
     </android.support.v7.widget.Toolbar>
+
     <ListView
         android:id="@+id/edit_location_list"
         android:layout_alignParentStart="true"

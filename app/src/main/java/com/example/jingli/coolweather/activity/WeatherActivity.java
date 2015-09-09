@@ -1,6 +1,5 @@
 package com.example.jingli.coolweather.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,11 +11,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,16 +35,16 @@ import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 import com.example.jingli.coolweather.util.MyApplication;
 
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 
-public class WeatherActivity extends Activity{
+public class WeatherActivity extends AppCompatActivity{
 
     private static final int EDIT_LIST = 1;
     private TextView currentTimeText;
@@ -69,7 +70,6 @@ public class WeatherActivity extends Activity{
     private List<String> citiesList = new ArrayList<>();
 
     private DrawerLayout drawerLayout;
-    private Toolbar toolbar;
     private TextView cityNameText;
     private ArrayAdapter<String> adapter;
     @Override
@@ -91,7 +91,9 @@ public class WeatherActivity extends Activity{
 
         dailyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        toolbar = (Toolbar) findViewById(R.id.weather_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.weather_toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
         cityNameText = (TextView) toolbar.findViewById(R.id.city_name_text);
 
         // TODO: 9/6/15:
@@ -171,10 +173,7 @@ public class WeatherActivity extends Activity{
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String citiesString = prefs.getString("all_cities", "");
         final String[] cities = citiesString.split(",");
-
-        for(String city : cities) {
-            citiesList.add(city);
-        }
+        Collections.addAll(citiesList, cities);
         citiesList.add(getString(R.string.edit_list));
 
         adapter = new ArrayAdapter<>(WeatherActivity.this, android.R.layout.simple_list_item_1, citiesList);
@@ -182,10 +181,10 @@ public class WeatherActivity extends Activity{
         leftDrawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("MyLog", "position = " + position + " " + citiesList.get(position));
                 if (position == citiesList.size() - 1) {
                     Intent editLocationIntent = new Intent(WeatherActivity.this, EditLocationActivity.class);
                     startActivityForResult(editLocationIntent, EDIT_LIST);
+                    drawerLayout.closeDrawer(leftDrawer);
                 } else {
                     String cityName = citiesList.get(position);
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
@@ -319,9 +318,7 @@ public class WeatherActivity extends Activity{
                     String citiesString = prefs.getString("all_cities", "");
                     String[] cities = citiesString.split(",");
                     citiesList.clear();
-                    for (String city : cities) {
-                        citiesList.add(city);
-                    }
+                    Collections.addAll(citiesList, cities);
                     citiesList.add(getString(R.string.edit_list));
                     adapter.notifyDataSetChanged();
                 }
@@ -329,5 +326,19 @@ public class WeatherActivity extends Activity{
             default:
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_weather, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            default:
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

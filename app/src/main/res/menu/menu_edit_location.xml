@@ -4,12 +4,6 @@
     tools:context="com.example.jingli.coolweather.activity.EditLocationActivity">
 
     <item
-        android:id="@+id/edit_list"
-        android:title="@string/edit_list"
-        android:orderInCategory="1"
-        android:icon="@drawable/ic_action_edit"
-        app:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/add_city"
         android:title="@string/add_city"
         android:orderInCategory="2"

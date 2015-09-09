@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,6 +24,7 @@ import com.example.jingli.coolweather.util.HttpCallBackListener;
 import com.example.jingli.coolweather.util.HttpUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChooseAreaActivity extends Activity {
@@ -45,7 +45,6 @@ public class ChooseAreaActivity extends Activity {
     private ArrayAdapter<String> adapter;
     private List<String> dataList = new ArrayList<>();
 
-    private Toolbar toolbar;
     private TextView nameText;
 
     private CoolWeatherDB coolWeatherDB;
@@ -80,7 +79,7 @@ public class ChooseAreaActivity extends Activity {
         setContentView(R.layout.choose_area);
 
         listView = (ListView)findViewById(R.id.list_view);
-        toolbar = (Toolbar) findViewById(R.id.choose_area_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.choose_area_toolbar);
         nameText = (TextView) toolbar.findViewById(R.id.name_text);
 
         coolWeatherDB = CoolWeatherDB.getInstance(this);
@@ -105,9 +104,8 @@ public class ChooseAreaActivity extends Activity {
                         String citiesString = prefs.getString("all_cities", "");
                         String[] cities = citiesString.split(",");
                         List<String> citiesList = new ArrayList<>();
-                        for(String city : cities) {
-                            citiesList.add(city);
-                        }
+                        Collections.addAll(citiesList, cities);
+
 
                         String county_name = selectedCounty.getName();
                         if(!citiesList.contains(county_name)) {
